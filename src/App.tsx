@@ -118,13 +118,11 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6 mb-6">
+                  <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-600 p-2 rounded-lg">
-                        <Phone className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-600">Call Us:</p>
+                      <Phone className="w-6 h-6 text-blue-600 flex-shrink-0" />
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-sm text-slate-600">Call Us:</span>
                         <a
                           href={`tel:${location.phone}`}
                           className="text-lg font-semibold text-slate-900 hover:text-blue-600 transition-colors"
