@@ -1,4 +1,6 @@
-import { Phone, MessageCircle } from 'lucide-react';
+import { Phone, MessageCircle, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface LocationBlockProps {
   name: string;
@@ -7,11 +9,58 @@ interface LocationBlockProps {
   phoneDisplay: string;
   mapEmbedUrl: string;
   description?: string;
+  locationKey: string;
 }
 
-export function LocationBlock({ name, address, phone, phoneDisplay, mapEmbedUrl, description }: LocationBlockProps) {
+interface HoursOfOperation {
+  [day: string]: {
+    open: string;
+    close: string;
+    closed: boolean;
+  };
+}
+
+export function LocationBlock({ name, address, phone, phoneDisplay, mapEmbedUrl, description, locationKey }: LocationBlockProps) {
+  const [hours, setHours] = useState<HoursOfOperation | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHours = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('store_settings')
+          .select('hours_of_operation')
+          .eq('location', locationKey)
+          .maybeSingle();
+
+        if (error) throw error;
+        if (data?.hours_of_operation) {
+          setHours(data.hours_of_operation as HoursOfOperation);
+        }
+      } catch (error) {
+        console.error('Error fetching hours:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHours();
+  }, [locationKey]);
+
   const handleTextClick = () => {
     window.open(`sms:${phone}`, '_blank');
+  };
+
+  const formatDay = (day: string) => {
+    return day.charAt(0).toUpperCase() + day.slice(1);
+  };
+
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   return (
@@ -54,6 +103,30 @@ export function LocationBlock({ name, address, phone, phoneDisplay, mapEmbedUrl,
           </p>
         )}
       </div>
+
+      {/* Hours of Operation */}
+      {!loading && hours && Object.keys(hours).length > 0 && (
+        <div className="bg-white border-4 border-gray-800 rounded-3xl p-8 mb-6">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Clock className="w-6 h-6 text-red-600" />
+            <h3 className="text-xl font-bold text-gray-800">Hours of Operation</h3>
+          </div>
+          <div className="space-y-3">
+            {Object.entries(hours).map(([day, schedule]) => (
+              <div key={day} className="flex justify-between items-center border-b border-gray-200 pb-2">
+                <span className="font-semibold text-gray-800">{formatDay(day)}</span>
+                <span className="text-gray-700">
+                  {schedule.closed ? (
+                    <span className="text-red-600 font-medium">Closed</span>
+                  ) : (
+                    `${formatTime(schedule.open)} - ${formatTime(schedule.close)}`
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Map */}
       <div>
