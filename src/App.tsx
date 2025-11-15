@@ -148,9 +148,9 @@ function App() {
                           const schedule = hoursData[location.locationKey][day];
                           if (!schedule) return null;
                           return (
-                            <div key={day} className="flex justify-between text-slate-900">
-                              <span className="font-bold">{formatDayLabel(day)}</span>
-                              <span>
+                            <div key={day} className="flex text-slate-900">
+                              <span className="font-bold w-12">{formatDayLabel(day)}</span>
+                              <span className="ml-8">
                                 {schedule.closed ? (
                                   'Closed'
                                 ) : (
