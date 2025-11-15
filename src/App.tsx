@@ -1,4 +1,14 @@
 import { Phone, MessageCircle, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase } from './lib/supabase';
+
+interface HoursOfOperation {
+  [day: string]: {
+    open: string;
+    close: string;
+    closed: boolean;
+  };
+}
 
 function App() {
   const locations = [
@@ -10,6 +20,7 @@ function App() {
       phoneDisplay: '(615) 815-6734',
       mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3227.8!2d-87.35!3d35.95!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzXCsDU3JzAwLjAiTiA4N8KwMjEnMDAuMCJX!5e0!3m2!1sen!2sus!4v1234567890!5m2!1sen!2sus',
       description: 'Full service location with walk-in, phone & turnkey delivery immediately available',
+      locationKey: 'bon-aqua',
     },
     {
       name: "Rent 'n King - Waverly",
@@ -19,12 +30,63 @@ function App() {
       phoneDisplay: '(615) 815-6734',
       mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d204374.4!2d-87.4!3d36.55!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88648670c5b06391%3A0x670045f9e4ba6e51!2sClarksville%2C%20TN!5e0!3m2!1sen!2sus!4v1234567890!5m2!1sen!2sus',
       description: 'Full service location with walk-in, phone & turnkey delivery immediately available',
+      locationKey: 'waverly',
     },
   ];
+
+  const [hoursData, setHoursData] = useState<Record<string, HoursOfOperation>>({});
+
+  useEffect(() => {
+    const fetchAllHours = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('store_settings')
+          .select('location, hours_of_operation');
+
+        if (error) throw error;
+        if (data) {
+          const hoursMap: Record<string, HoursOfOperation> = {};
+          data.forEach((item) => {
+            if (item.hours_of_operation) {
+              hoursMap[item.location] = item.hours_of_operation;
+            }
+          });
+          setHoursData(hoursMap);
+        }
+      } catch (error) {
+        console.error('Error fetching hours:', error);
+      }
+    };
+
+    fetchAllHours();
+  }, []);
 
   const handleTextClick = (phone: string) => {
     window.open(`sms:${phone}`, '_blank');
   };
+
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'Pm' : 'Am';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
+
+  const formatDayLabel = (day: string) => {
+    const dayMap: Record<string, string> = {
+      monday: 'Mon',
+      tuesday: 'Tue',
+      wednesday: 'Wed',
+      thursday: 'Thu',
+      friday: 'Fri',
+      saturday: 'Sat',
+      sunday: 'Sun',
+    };
+    return dayMap[day.toLowerCase()] || day;
+  };
+
+  const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -74,9 +136,33 @@ function App() {
                     </button>
                   </div>
 
-                  <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+                  <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg mb-6">
                     <p className="text-blue-900 font-medium">{location.description}</p>
                   </div>
+
+                  {hoursData[location.locationKey] && (
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 text-center mb-4">Hours of Operation</h3>
+                      <div className="space-y-1">
+                        {dayOrder.map((day) => {
+                          const schedule = hoursData[location.locationKey][day];
+                          if (!schedule) return null;
+                          return (
+                            <div key={day} className="flex justify-between text-slate-900">
+                              <span className="font-bold">{formatDayLabel(day)}</span>
+                              <span>
+                                {schedule.closed ? (
+                                  'Closed'
+                                ) : (
+                                  `${formatTime(schedule.open)} - ${formatTime(schedule.close)}`
+                                )}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="relative h-96">
