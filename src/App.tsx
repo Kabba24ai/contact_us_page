@@ -118,18 +118,25 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                    <a
-                      href={`tel:${location.phone}`}
-                      className="flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors shadow-sm"
-                    >
-                      <Phone className="w-5 h-5" />
-                      <span>{location.phoneDisplay}</span>
-                    </a>
+                  <div className="flex items-center gap-6 mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-blue-600 p-2 rounded-lg">
+                        <Phone className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-600">Call Us:</p>
+                        <a
+                          href={`tel:${location.phone}`}
+                          className="text-lg font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                        >
+                          {location.phoneDisplay}
+                        </a>
+                      </div>
+                    </div>
 
                     <button
                       onClick={() => handleTextClick(location.phone)}
-                      className="flex items-center justify-center gap-3 px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-semibold transition-colors border-2 border-slate-300"
+                      className="flex items-center justify-center gap-3 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-semibold transition-colors border-2 border-slate-300"
                     >
                       <MessageCircle className="w-5 h-5" />
                       <span>Click to Text</span>
