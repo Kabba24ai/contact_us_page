@@ -26,16 +26,19 @@ A production-ready contact page application for Rent 'n King's two locations (Bo
 │   │   ├── HoursEditor.tsx        # Store hours management component
 │   │   └── LocationBlock.tsx      # Location card component
 │   ├── pages/
-│   │   └── StoreHoursAdmin.tsx    # Admin page for managing store hours
+│   │   ├── StoreHoursAdmin.tsx    # Admin page for managing store hours
+│   │   └── StoreSettings.tsx      # Complete store settings admin page
 │   └── lib/
 │       └── supabase.ts            # Supabase client configuration
 ├── supabase/
 │   └── migrations/
 │       ├── 20251109135513_create_contact_submissions_table.sql
-│       └── 20251115111518_create_store_settings_table.sql
+│       ├── 20251115111518_create_store_settings_table.sql
+│       └── 20251116120000_add_store_fields.sql
 ├── store-settings-hours.html      # Standalone hours editor demo
 ├── hours-section-snippet.html     # HTML snippet for existing forms
 ├── HOURS_INTEGRATION_GUIDE.md     # Hours editor integration guide
+├── STORE_SETTINGS_GUIDE.md        # Store Settings admin page guide
 └── .env                           # Environment variables (not in git)
 ```
 
@@ -85,8 +88,21 @@ A production-ready contact page application for Rent 'n King's two locations (Bo
 ### Table: `store_settings`
 ```sql
 - id (uuid, primary key)
-- location (text, required, unique)
-- hours_of_operation (jsonb, required)
+- location (text, required, unique) - Location identifier
+- store_name (text) - Store display name
+- phone (text) - Contact phone number
+- email (text) - Contact email address
+- details (text) - Additional store information
+- address (text) - Street address
+- city (text) - City name
+- state (text) - State name
+- zip_code (text) - Postal code
+- country (text, default: 'USA') - Country name
+- latitude (text) - GPS latitude coordinate
+- longitude (text) - GPS longitude coordinate
+- is_primary (boolean, default: false) - Primary store flag
+- status (text, default: 'Active') - Store status
+- hours_of_operation (jsonb) - Weekly hours
 - created_at (timestamptz)
 - updated_at (timestamptz)
 ```
@@ -290,10 +306,40 @@ For questions or issues, refer to:
 - Supabase docs: https://supabase.com/docs
 - Tailwind CSS: https://tailwindcss.com
 
-## Store Hours Management System
+## Admin Pages
 
-### Overview
-The Store Hours Management system allows admins to easily update operating hours for each location. Changes are immediately reflected on the public-facing Contact page.
+### 1. Store Settings (Complete Management)
+
+**Location**: `src/pages/StoreSettings.tsx`
+
+A comprehensive admin interface for managing all store information:
+
+#### Features
+- **Store Selection**: Dropdown to switch between locations
+- **Basic Information**: Name, phone, email, details
+- **Store Address**: Full address with GPS coordinates
+- **Store Settings**: Primary/alternate designation, active/inactive status
+- **Hours Management**: Integrated hours editor (toggle to show/hide)
+- **Auto-formatting**: Phone numbers formatted as (xxx) xxx-xxxx
+- **Validation**: Required field checking and email validation
+- **Real-time Save**: Instant database updates with feedback
+
+#### Usage
+```typescript
+import StoreSettings from './pages/StoreSettings';
+
+<Route path="/admin/store-settings" element={<StoreSettings />} />
+```
+
+See `STORE_SETTINGS_GUIDE.md` for detailed documentation.
+
+---
+
+### 2. Store Hours Management System
+
+**Location**: `src/pages/StoreHoursAdmin.tsx`
+
+Dedicated interface for managing store hours only.
 
 ### Features
 - **Individual Day Management**: Set unique hours for each day of the week
@@ -350,7 +396,15 @@ Admin Interface → HoursEditor Component → Supabase Database → Contact Page
 
 ## Version History
 
-### v2.0 - Hours Management System (Current)
+### v3.0 - Complete Store Settings Admin (Current)
+- Full Store Settings admin page with all fields
+- Integrated hours management
+- Auto-formatting phone numbers
+- Form validation and error handling
+- Database migration for store fields
+- Comprehensive admin documentation
+
+### v2.0 - Hours Management System
 - Added Store Hours Admin interface
 - HoursEditor React component
 - HTML/Alpine.js integration options
