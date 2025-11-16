@@ -23,13 +23,19 @@ A production-ready contact page application for Rent 'n King's two locations (Bo
 │   ├── index.css                  # Global styles
 │   ├── components/
 │   │   ├── ContactForm.tsx        # Contact form with validation
+│   │   ├── HoursEditor.tsx        # Store hours management component
 │   │   └── LocationBlock.tsx      # Location card component
+│   ├── pages/
+│   │   └── StoreHoursAdmin.tsx    # Admin page for managing store hours
 │   └── lib/
 │       └── supabase.ts            # Supabase client configuration
 ├── supabase/
 │   └── migrations/
 │       ├── 20251109135513_create_contact_submissions_table.sql
 │       └── 20251115111518_create_store_settings_table.sql
+├── store-settings-hours.html      # Standalone hours editor demo
+├── hours-section-snippet.html     # HTML snippet for existing forms
+├── HOURS_INTEGRATION_GUIDE.md     # Hours editor integration guide
 └── .env                           # Environment variables (not in git)
 ```
 
@@ -53,7 +59,9 @@ A production-ready contact page application for Rent 'n King's two locations (Bo
 - Fetched from Supabase `store_settings` table
 - Displays hours for each location
 - Falls back to default hours if database unavailable
-- Managed in: `src/App.tsx` (useEffect hook)
+- Display component: `src/App.tsx` (useEffect hook)
+- Admin editor: `src/components/HoursEditor.tsx`
+- Admin page: `src/pages/StoreHoursAdmin.tsx`
 
 ### 4. Responsive Design
 - Mobile-first approach
@@ -77,24 +85,54 @@ A production-ready contact page application for Rent 'n King's two locations (Bo
 ### Table: `store_settings`
 ```sql
 - id (uuid, primary key)
-- location_id (text, required, unique)
-- hours (jsonb, required)
+- location (text, required, unique)
+- hours_of_operation (jsonb, required)
 - created_at (timestamptz)
 - updated_at (timestamptz)
 ```
 
-Hours format:
+Hours format (stored in `hours_of_operation` field):
 ```json
 {
-  "monday": "7:00 Am - 5:00 Pm",
-  "tuesday": "7:00 Am - 5:00 Pm",
-  "wednesday": "7:00 Am - 5:00 Pm",
-  "thursday": "7:00 Am - 5:00 Pm",
-  "friday": "7:00 Am - 5:00 Pm",
-  "saturday": "7:00 Am - 12:00 Pm",
-  "sunday": "Closed"
+  "monday": {
+    "open": "07:00",
+    "close": "17:00",
+    "closed": false
+  },
+  "tuesday": {
+    "open": "07:00",
+    "close": "17:00",
+    "closed": false
+  },
+  "wednesday": {
+    "open": "07:00",
+    "close": "17:00",
+    "closed": false
+  },
+  "thursday": {
+    "open": "07:00",
+    "close": "17:00",
+    "closed": false
+  },
+  "friday": {
+    "open": "07:00",
+    "close": "17:00",
+    "closed": false
+  },
+  "saturday": {
+    "open": "07:00",
+    "close": "12:00",
+    "closed": false
+  },
+  "sunday": {
+    "open": "",
+    "close": "",
+    "closed": true
+  }
 }
 ```
+
+**Note**: Times are stored in 24-hour format (HH:MM) but displayed to users in 12-hour format with AM/PM.
 
 ## Environment Variables
 
@@ -138,11 +176,24 @@ npm run build
 3. Test contact form submission with new location
 
 ### Modifying Store Hours
-Update the `hours` JSONB field in `store_settings` table:
+
+**Option 1: Using the Admin Interface (Recommended)**
+1. Navigate to Store Hours Admin page
+2. Select the location from dropdown
+3. Edit hours for each day
+4. Use quick copy buttons for efficiency
+5. Click "Save Hours"
+
+**Option 2: Direct Database Update**
 ```sql
 UPDATE store_settings
-SET hours = '{"monday": "8:00 Am - 6:00 Pm", ...}'
-WHERE location_id = 'bonaqua';
+SET hours_of_operation = '{
+  "monday": {"open": "08:00", "close": "18:00", "closed": false},
+  "tuesday": {"open": "08:00", "close": "18:00", "closed": false},
+  ...
+}'::jsonb,
+updated_at = now()
+WHERE location = 'bonaqua';
 ```
 
 ### Styling Changes
@@ -172,14 +223,27 @@ WHERE location_id = 'bonaqua';
 
 ## Testing Checklist
 
+### Contact Page
 - [ ] Contact form submission works for both locations
 - [ ] Phone numbers are clickable and trigger phone app
 - [ ] SMS text button opens messaging app
-- [ ] Store hours display correctly
+- [ ] Store hours display correctly for each location
 - [ ] Responsive design works on mobile/tablet/desktop
 - [ ] Form validation prevents invalid submissions
 - [ ] Success/error messages display properly
 - [ ] Database connections work in production
+
+### Hours Management
+- [ ] Can open Store Hours Admin page
+- [ ] Location selector switches between stores
+- [ ] Can mark days as closed/open
+- [ ] Can set different hours for each day
+- [ ] Quick copy functions work correctly
+- [ ] Preview matches input values
+- [ ] Hours save to database successfully
+- [ ] Saved hours appear on Contact page
+- [ ] Loading existing hours works on page refresh
+- [ ] Success/error messages display properly
 
 ## Deployment
 
@@ -208,12 +272,14 @@ LIMIT 100;
 ```
 
 ### Updating Store Hours
-Use Supabase dashboard or SQL:
+Use the admin interface at `/admin/store-hours` or via Supabase dashboard/SQL:
 ```sql
 UPDATE store_settings
-SET hours = '{"monday": "New Hours", ...}',
-    updated_at = now()
-WHERE location_id = 'bonaqua';
+SET hours_of_operation = '{
+  "monday": {"open": "08:00", "close": "18:00", "closed": false}
+}'::jsonb,
+updated_at = now()
+WHERE location = 'bonaqua';
 ```
 
 ## Support & Contact
@@ -224,9 +290,76 @@ For questions or issues, refer to:
 - Supabase docs: https://supabase.com/docs
 - Tailwind CSS: https://tailwindcss.com
 
+## Store Hours Management System
+
+### Overview
+The Store Hours Management system allows admins to easily update operating hours for each location. Changes are immediately reflected on the public-facing Contact page.
+
+### Features
+- **Individual Day Management**: Set unique hours for each day of the week
+- **Closed Day Handling**: Mark specific days as closed with a checkbox
+- **Quick Copy Functions**:
+  - Copy Monday to Weekdays (Mon-Fri)
+  - Copy Monday to All Days
+- **Live Preview**: See exactly how hours will display on the website
+- **Database Persistence**: All changes saved to Supabase
+- **Real-time Updates**: Changes appear immediately on Contact page
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+
+### Components
+
+#### 1. HoursEditor Component (`src/components/HoursEditor.tsx`)
+React component that provides the full hours management interface:
+- Loads existing hours from database
+- Allows editing all days of the week
+- Validates time inputs
+- Saves changes to database
+- Shows success/error messages
+
+#### 2. StoreHoursAdmin Page (`src/pages/StoreHoursAdmin.tsx`)
+Standalone admin page featuring:
+- Location selector dropdown
+- Full hours editor interface
+- Usage instructions and notes
+- Dedicated route for admin access
+
+#### 3. HTML Integration Options
+For non-React environments:
+- **store-settings-hours.html**: Standalone demo page
+- **hours-section-snippet.html**: Code snippet for existing forms
+- Uses Alpine.js for interactivity
+- Matches existing Kabba admin styling
+
+### Integration Guide
+See `HOURS_INTEGRATION_GUIDE.md` for detailed instructions on:
+- Adding hours editor to existing HTML forms
+- Using the React component
+- Backend integration examples
+- Database queries and updates
+- Testing procedures
+
+### Data Flow
+```
+Admin Interface → HoursEditor Component → Supabase Database → Contact Page
+```
+
+1. Admin edits hours in HoursEditor
+2. Component saves to `store_settings` table
+3. Contact page fetches hours on load
+4. Hours display in location cards
+
 ## Version History
 
-- **Current**: Production-ready contact page with dynamic hours
+### v2.0 - Hours Management System (Current)
+- Added Store Hours Admin interface
+- HoursEditor React component
+- HTML/Alpine.js integration options
+- Comprehensive documentation
+- Database schema updates
+- Live preview functionality
+
+### v1.0 - Initial Release
+- Production-ready contact page with dynamic hours
 - Location cards with phone/SMS functionality
 - Contact form with database integration
 - Responsive design optimized for all devices
