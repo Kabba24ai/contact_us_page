@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import HoursEditor from '../components/HoursEditor';
-import { MapPin, Phone, Mail, Info, Building2, Globe, Save, CheckCircle2 } from 'lucide-react';
+import { Check, Plus, ExternalLink } from 'lucide-react';
 
 interface StoreData {
   id?: string;
@@ -109,7 +109,7 @@ export default function StoreSettings() {
       if (data) {
         setFormData({
           id: data.id,
-          store_name: data.store_name || locationId.charAt(0).toUpperCase() + locationId.slice(1),
+          store_name: data.store_name || '',
           phone: data.phone || '',
           email: data.email || '',
           details: data.details || '',
@@ -132,15 +132,15 @@ export default function StoreSettings() {
     }
   };
 
-  const handleInputChange = (field: keyof StoreData, value: string | boolean) => {
+  const handleInputChange = (field: keyof StoreData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
-    return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 3) return cleaned;
+    if (cleaned.length <= 6) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
   };
 
   const handlePhoneChange = (value: string) => {
@@ -148,35 +148,13 @@ export default function StoreSettings() {
     handleInputChange('phone', formatted);
   };
 
-  const validateForm = (): boolean => {
-    if (!formData.store_name.trim()) {
-      setMessage({ type: 'error', text: 'Store name is required' });
-      return false;
-    }
-    if (!formData.email.trim() || !formData.email.includes('@')) {
-      setMessage({ type: 'error', text: 'Valid email is required' });
-      return false;
-    }
-    if (!formData.phone.trim()) {
-      setMessage({ type: 'error', text: 'Phone number is required' });
-      return false;
-    }
-    if (!formData.address.trim()) {
-      setMessage({ type: 'error', text: 'Address is required' });
-      return false;
-    }
-    return true;
-  };
-
   const saveStore = async () => {
-    if (!validateForm()) return;
-
     setSaving(true);
     setMessage(null);
 
     try {
       const storeRecord = {
-        location: formData.location_id,
+        location: selectedStore,
         store_name: formData.store_name,
         phone: formData.phone,
         email: formData.email,
@@ -213,51 +191,32 @@ export default function StoreSettings() {
 
   if (loading && !selectedStore) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-            <Building2 className="w-8 h-8 text-blue-600" />
-            Store Settings
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Manage store information and operating hours
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900">Edit Store</h1>
         </div>
 
         {message && (
-          <div
-            className={`mb-6 px-4 py-3 rounded-lg flex items-center gap-3 ${
-              message.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-200'
-                : 'bg-red-50 text-red-800 border border-red-200'
-            }`}
-          >
-            {message.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5" />
-            ) : (
-              <Info className="w-5 h-5" />
-            )}
+          <div className={`mb-6 p-4 rounded-lg ${
+            message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+          }`}>
             {message.text}
           </div>
         )}
 
         <div className="mb-6">
-          <label htmlFor="store-select" className="block text-sm font-medium text-slate-700 mb-2">
-            Select Store
-          </label>
           <select
-            id="store-select"
             value={selectedStore}
             onChange={(e) => setSelectedStore(e.target.value)}
-            className="w-full max-w-md rounded-lg border border-gray-300 px-4 py-2.5 text-sm shadow-sm focus:ring-2 focus:border-blue-500 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
           >
             {stores.map((store) => (
               <option key={store.location_id} value={store.location_id}>
@@ -267,309 +226,246 @@ export default function StoreSettings() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 gap-6">
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <div className="px-6 py-6">
-              <h3 className="mb-4 text-base font-semibold text-gray-900">Basic Information</h3>
-              <hr className="mb-6 border-gray-300" />
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Basic Info</h2>
 
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label htmlFor="store_name" className="block mb-2 text-sm font-medium text-gray-700">
-                    Store Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="store_name"
-                    value={formData.store_name}
-                    onChange={(e) => handleInputChange('store_name', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    placeholder="Enter store name"
-                    required
-                  />
-                </div>
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.store_name}
+                  onChange={(e) => handleInputChange('store_name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Waverly"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="phone" className="block mb-2 text-sm font-medium text-gray-700">
-                    Phone Number <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="tel"
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                      placeholder="(xxx) xxx-xxxx"
-                      required
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="(615) 815-6734"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
-                    Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="email"
-                      id="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                      placeholder="store@company.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="details" className="block mb-2 text-sm font-medium text-gray-700">
-                    Details
-                  </label>
-                  <input
-                    type="text"
-                    id="details"
-                    value={formData.details}
-                    onChange={(e) => handleInputChange('details', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    placeholder="Enter any additional details about the store"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Sales@RentnKing.com"
+                />
               </div>
             </div>
-          </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <div className="px-6 py-6">
-              <h3 className="mb-4 text-base font-semibold text-gray-900 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-600" />
-                Store Address
-              </h3>
-              <hr className="mb-6 border-gray-300" />
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Details
+              </label>
+              <input
+                type="text"
+                value={formData.details}
+                onChange={(e) => handleInputChange('details', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Full service location with walk-in, phone & turnkey delivery immediately available"
+              />
+            </div>
 
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-700">
-                    Street Address <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    placeholder="123 Main Street"
-                    required
-                  />
-                </div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6 mt-8">Store Address</h2>
 
-                <div>
-                  <label htmlFor="city" className="block mb-2 text-sm font-medium text-gray-700">
-                    City <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    placeholder="Enter city"
-                    required
-                  />
-                </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Street Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="1004 US-70"
+              />
+            </div>
 
-                <div>
-                  <label htmlFor="state" className="block mb-2 text-sm font-medium text-gray-700">
-                    State <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="state"
-                    value={formData.state}
-                    onChange={(e) => handleInputChange('state', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    required
-                  >
-                    <option value="">Select State</option>
-                    {US_STATES.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => handleInputChange('city', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Waverly"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="zip_code" className="block mb-2 text-sm font-medium text-gray-700">
-                    Zip Code <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="zip_code"
-                    value={formData.zip_code}
-                    onChange={(e) => handleInputChange('zip_code', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    placeholder="12345"
-                    maxLength={10}
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  State <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.state}
+                  onChange={(e) => handleInputChange('state', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                >
+                  <option value="">Select</option>
+                  {US_STATES.map(state => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+              </div>
 
-                <div>
-                  <label htmlFor="country" className="block mb-2 text-sm font-medium text-gray-700">
-                    Country <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Zip Code <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.zip_code}
+                  onChange={(e) => handleInputChange('zip_code', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="37185"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Country <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.country}
+                  onChange={(e) => handleInputChange('country', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="USA"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Latitude <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.latitude}
+                  onChange={(e) => handleInputChange('latitude', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="36.085351"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Longitude <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.longitude}
+                  onChange={(e) => handleInputChange('longitude', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="-87.759946"
+                />
+              </div>
+            </div>
+
+            <h2 className="text-lg font-semibold text-gray-900 mb-6 mt-8">Store Settings</h2>
+
+            <div className="grid grid-cols-2 gap-8 mb-8">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Store Designation <span className="text-red-500">*</span>
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center cursor-pointer">
                     <input
-                      type="text"
-                      id="country"
-                      value={formData.country}
-                      onChange={(e) => handleInputChange('country', e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                      placeholder="USA"
-                      required
+                      type="radio"
+                      name="is_primary"
+                      checked={formData.is_primary}
+                      onChange={() => handleInputChange('is_primary', true)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                     />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="latitude" className="block mb-2 text-sm font-medium text-gray-700">
-                    Latitude
+                    <span className="ml-2 text-sm text-gray-700">Primary Store</span>
                   </label>
-                  <input
-                    type="text"
-                    id="latitude"
-                    value={formData.latitude}
-                    onChange={(e) => handleInputChange('latitude', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    placeholder="36.085351"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="longitude" className="block mb-2 text-sm font-medium text-gray-700">
-                    Longitude
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="is_primary"
+                      checked={!formData.is_primary}
+                      onChange={() => handleInputChange('is_primary', false)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Alternate Store</span>
                   </label>
-                  <input
-                    type="text"
-                    id="longitude"
-                    value={formData.longitude}
-                    onChange={(e) => handleInputChange('longitude', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500"
-                    placeholder="-87.759946"
-                  />
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <div className="px-6 py-6">
-              <h3 className="mb-4 text-base font-semibold text-gray-900">Store Settings</h3>
-              <hr className="mb-6 border-gray-300" />
-
-              <div className="grid grid-cols-1 gap-6 items-start">
-                <div>
-                  <span className="block mb-2 text-sm font-medium text-gray-700">
-                    Store Designation
-                  </span>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="is_primary"
-                        checked={formData.is_primary}
-                        onChange={() => handleInputChange('is_primary', true)}
-                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-800">Primary Store</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="is_primary"
-                        checked={!formData.is_primary}
-                        onChange={() => handleInputChange('is_primary', false)}
-                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-800">Alternate Store</span>
-                    </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Store Status <span className="text-red-500">*</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={formData.status === 'Active'}
+                      onChange={(e) => handleInputChange('status', e.target.checked ? 'Active' : 'Inactive')}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-700">
-                    Store Status
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleInputChange('status', formData.status === 'Active' ? 'Inactive' : 'Active')
-                      }
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                        formData.status === 'Active' ? 'bg-green-500' : 'bg-gray-200'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
-                          formData.status === 'Active' ? 'translate-x-5' : 'translate-x-1'
-                        }`}
-                      ></span>
-                    </button>
-                    <span className="text-sm text-gray-800">{formData.status}</span>
-                  </div>
-                </div>
+                  <span className="ml-3 text-sm text-gray-700">{formData.status}</span>
+                </label>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <div className="px-6 py-6">
+            <div className="border-t border-gray-200 pt-6">
               <HoursEditor locationId={selectedStore} locationName={formData.store_name} />
             </div>
-          </div>
 
-          <div className="flex justify-center">
-            <button
-              onClick={saveStore}
-              disabled={saving}
-              className="inline-flex items-center px-8 py-3 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              {saving ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="w-5 h-5 mr-2" />
-                  Save Store Information
-                </>
-              )}
-            </button>
+            <div className="flex gap-3 mt-8 pt-6 border-t border-gray-200">
+              <button
+                onClick={saveStore}
+                disabled={saving}
+                className="inline-flex items-center px-5 py-2.5 bg-teal-500 text-white text-sm font-medium rounded-lg hover:bg-teal-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Save
+              </button>
+
+              <button
+                onClick={saveStore}
+                disabled={saving}
+                className="inline-flex items-center px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Save & New
+              </button>
+
+              <button
+                onClick={saveStore}
+                disabled={saving}
+                className="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Save & Exit
+              </button>
+            </div>
           </div>
         </div>
       </div>
