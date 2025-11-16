@@ -20,6 +20,7 @@ interface WeekHours {
 interface HoursEditorProps {
   locationId: string;
   locationName: string;
+  onHoursChange?: (hoursData: WeekHours) => void;
 }
 
 const DAYS = [
@@ -42,15 +43,20 @@ const DEFAULT_HOURS: WeekHours = {
   sunday: { open: '', close: '', closed: true },
 };
 
-export default function HoursEditor({ locationId, locationName }: HoursEditorProps) {
+export default function HoursEditor({ locationId, locationName, onHoursChange }: HoursEditorProps) {
   const [hours, setHours] = useState<WeekHours>(DEFAULT_HOURS);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     loadHours();
   }, [locationId]);
+
+  // Pass hours data to parent whenever it changes
+  useEffect(() => {
+    if (onHoursChange && !loading) {
+      onHoursChange(hours);
+    }
+  }, [hours, loading]);
 
   const loadHours = async () => {
     try {
@@ -118,35 +124,8 @@ export default function HoursEditor({ locationId, locationName }: HoursEditorPro
     });
   };
 
-  const saveHours = async () => {
-    setSaving(true);
-    setMessage(null);
-
-    try {
-      const { error } = await supabase
-        .from('store_settings')
-        .upsert(
-          {
-            location: locationId,
-            hours_of_operation: hours,
-            updated_at: new Date().toISOString(),
-          },
-          {
-            onConflict: 'location',
-          }
-        );
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: 'Hours saved successfully!' });
-      setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error('Error saving hours:', error);
-      setMessage({ type: 'error', text: 'Failed to save hours. Please try again.' });
-    } finally {
-      setSaving(false);
-    }
-  };
+  // Hours are now saved as part of the parent form save
+  // This component only manages the hours state
 
   const formatTime = (time24: string): string => {
     if (!time24) return '';
@@ -179,18 +158,6 @@ export default function HoursEditor({ locationId, locationName }: HoursEditorPro
           Hours of Operation - {locationName}
         </h3>
         <hr className="mb-6 border-gray-300" />
-
-        {message && (
-          <div
-            className={`mb-6 px-4 py-3 rounded-lg ${
-              message.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-200'
-                : 'bg-red-50 text-red-800 border border-red-200'
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
 
         <div className="space-y-4">
           {DAYS.map((day) => (
@@ -261,57 +228,7 @@ export default function HoursEditor({ locationId, locationName }: HoursEditorPro
           </div>
         </div>
 
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={saveHours}
-            disabled={saving}
-            className="inline-flex items-center px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Saving...
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-5 h-5 mr-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Save Hours
-              </>
-            )}
-          </button>
-        </div>
-
-        <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="mt-6 pt-6 border-t border-gray-200">
           <h4 className="text-sm font-semibold text-gray-900 mb-3">
             Preview (as displayed on website):
           </h4>

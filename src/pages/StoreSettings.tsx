@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import HoursEditor from '../components/HoursEditor';
-import { Check, Plus, ExternalLink } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface StoreData {
   id?: string;
@@ -52,6 +52,7 @@ export default function StoreSettings() {
   const [stores, setStores] = useState<StoreData[]>([]);
   const [selectedStore, setSelectedStore] = useState<string>('');
   const [formData, setFormData] = useState<StoreData>(INITIAL_STORE_DATA);
+  const [hoursData, setHoursData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -168,6 +169,7 @@ export default function StoreSettings() {
         longitude: formData.longitude,
         is_primary: formData.is_primary,
         status: formData.status,
+        hours_of_operation: hoursData,
         updated_at: new Date().toISOString()
       };
 
@@ -421,35 +423,49 @@ export default function StoreSettings() {
             </div>
 
             <div className="border-t border-gray-200 pt-6">
-              <HoursEditor locationId={selectedStore} locationName={formData.store_name} />
+              <HoursEditor
+                locationId={selectedStore}
+                locationName={formData.store_name}
+                onHoursChange={setHoursData}
+              />
             </div>
 
             <div className="flex justify-center gap-3 mt-8 pt-6 border-t border-gray-200">
               <button
-                onClick={saveStore}
+                onClick={() => saveStore()}
                 disabled={saving}
-                className="inline-flex items-center px-5 py-2.5 bg-teal-500 text-white text-sm font-medium rounded-lg hover:bg-teal-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Check className="w-4 h-4 mr-2" />
-                Save
-              </button>
-
-              <button
-                onClick={saveStore}
-                disabled={saving}
-                className="inline-flex items-center px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Save & New
-              </button>
-
-              <button
-                onClick={saveStore}
-                disabled={saving}
-                className="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Save & Exit
+                {saving ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Save
+                  </>
+                )}
               </button>
             </div>
           </div>
