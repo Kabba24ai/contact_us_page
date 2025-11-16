@@ -221,7 +221,7 @@ export default function StoreSettings() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
             <Building2 className="w-8 h-8 text-blue-600" />
@@ -273,7 +273,7 @@ export default function StoreSettings() {
               <h3 className="mb-4 text-base font-semibold text-gray-900">Basic Information</h3>
               <hr className="mb-6 border-gray-300" />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label htmlFor="store_name" className="block mb-2 text-sm font-medium text-gray-700">
                     Store Name <span className="text-red-500">*</span>
@@ -325,7 +325,7 @@ export default function StoreSettings() {
                   </div>
                 </div>
 
-                <div className="md:col-span-3">
+                <div>
                   <label htmlFor="details" className="block mb-2 text-sm font-medium text-gray-700">
                     Details
                   </label>
@@ -350,8 +350,8 @@ export default function StoreSettings() {
               </h3>
               <hr className="mb-6 border-gray-300" />
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="md:col-span-4">
+              <div className="grid grid-cols-1 gap-6">
+                <div>
                   <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-700">
                     Street Address <span className="text-red-500">*</span>
                   </label>
@@ -471,7 +471,7 @@ export default function StoreSettings() {
               <h3 className="mb-4 text-base font-semibold text-gray-900">Store Settings</h3>
               <hr className="mb-6 border-gray-300" />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              <div className="grid grid-cols-1 gap-6 items-start">
                 <div>
                   <span className="block mb-2 text-sm font-medium text-gray-700">
                     Store Designation
