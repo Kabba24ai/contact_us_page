@@ -212,20 +212,6 @@ export default function StoreSettings() {
           </div>
         )}
 
-        <div className="mb-6">
-          <select
-            value={selectedStore}
-            onChange={(e) => setSelectedStore(e.target.value)}
-            className="w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-          >
-            {stores.map((store) => (
-              <option key={store.location_id} value={store.location_id}>
-                {store.store_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">Basic Info</h2>
