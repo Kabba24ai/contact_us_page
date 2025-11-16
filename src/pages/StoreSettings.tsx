@@ -216,7 +216,7 @@ export default function StoreSettings() {
           <select
             value={selectedStore}
             onChange={(e) => setSelectedStore(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
           >
             {stores.map((store) => (
               <option key={store.location_id} value={store.location_id}>
@@ -438,7 +438,7 @@ export default function StoreSettings() {
               <HoursEditor locationId={selectedStore} locationName={formData.store_name} />
             </div>
 
-            <div className="flex gap-3 mt-8 pt-6 border-t border-gray-200">
+            <div className="flex justify-center gap-3 mt-8 pt-6 border-t border-gray-200">
               <button
                 onClick={saveStore}
                 disabled={saving}
