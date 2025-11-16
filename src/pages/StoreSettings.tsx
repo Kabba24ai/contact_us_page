@@ -55,7 +55,6 @@ export default function StoreSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [showHoursEditor, setShowHoursEditor] = useState(false);
 
   useEffect(() => {
     loadStores();
@@ -528,11 +527,17 @@ export default function StoreSettings() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-4">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+            <div className="px-6 py-6">
+              <HoursEditor locationId={selectedStore} locationName={formData.store_name} />
+            </div>
+          </div>
+
+          <div className="flex justify-center">
             <button
               onClick={saveStore}
               disabled={saving}
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="inline-flex items-center px-8 py-3 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {saving ? (
                 <>
@@ -561,24 +566,11 @@ export default function StoreSettings() {
               ) : (
                 <>
                   <Save className="w-5 h-5 mr-2" />
-                  Save Store Settings
+                  Save Store Information
                 </>
               )}
             </button>
-
-            <button
-              onClick={() => setShowHoursEditor(!showHoursEditor)}
-              className="inline-flex items-center px-6 py-3 bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-200 transition shadow-lg"
-            >
-              {showHoursEditor ? 'Hide' : 'Edit'} Hours of Operation
-            </button>
           </div>
-
-          {showHoursEditor && (
-            <div className="mt-6">
-              <HoursEditor locationId={selectedStore} locationName={formData.store_name} />
-            </div>
-          )}
         </div>
       </div>
     </div>

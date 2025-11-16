@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Building2, Clock } from 'lucide-react';
+import { Home, Building2 } from 'lucide-react';
 
 export default function AdminNav() {
   const location = useLocation();
@@ -40,25 +40,13 @@ export default function AdminNav() {
                 }`}
               >
                 <Building2 className="w-4 h-4" />
-                Store Settings
-              </Link>
-
-              <Link
-                to="/admin/store-hours"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  isActive('/admin/store-hours')
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                <Clock className="w-4 h-4" />
-                Store Hours
+                Admin
               </Link>
             </div>
           </div>
 
           <div className="text-sm text-slate-500">
-            Admin Panel
+            Store Management
           </div>
         </div>
       </div>

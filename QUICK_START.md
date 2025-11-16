@@ -21,31 +21,22 @@ Once the dev server is running, you can access:
 - **Description**: Public-facing contact page with store locations and hours
 - **Features**: Phone numbers, maps, hours of operation display
 
-#### 2. **Store Settings Admin** (Admin)
+#### 2. **Admin Page** (Store Settings)
 - **URL**: `http://localhost:5173/admin/store-settings`
-- **Description**: Complete store management interface
+- **Description**: Complete store management interface - ALL IN ONE PAGE
 - **Features**:
   - Edit store name, phone, email, details
   - Manage full address and GPS coordinates
   - Set primary/alternate store designation
   - Toggle active/inactive status
-  - Built-in hours editor (toggle to show/hide)
-
-#### 3. **Store Hours Admin** (Admin)
-- **URL**: `http://localhost:5173/admin/store-hours`
-- **Description**: Dedicated hours management interface
-- **Features**:
-  - Location selector
-  - Full week hours editor
-  - Quick copy functions
-  - Live preview
+  - **Integrated hours editor** (always visible on the same page)
+  - All settings in one convenient location
 
 ### Navigation Bar
 
 A navigation bar appears at the top of every page with quick links:
 - 🏠 **Contact Page** - Public contact page
-- 🏢 **Store Settings** - Complete store admin
-- 🕐 **Store Hours** - Hours-only admin
+- 🏢 **Admin** - Complete store management (everything in one page)
 
 Click any link to navigate between pages.
 
@@ -91,30 +82,21 @@ Then open your browser to http://localhost:5173
 
 ## Testing the Admin Pages
 
-### Test Store Settings
+### Test Admin Page
 1. Navigate to `/admin/store-settings`
 2. Select a store from the dropdown
 3. Edit any field (name, phone, email, etc.)
-4. Click "Save Store Settings"
-5. Verify success message appears
-6. Click "Edit Hours of Operation" to show hours editor
-7. Modify hours for any day
-8. Click "Save Hours"
-9. Return to Contact Page (/) to see changes
-
-### Test Store Hours
-1. Navigate to `/admin/store-hours`
-2. Select a store from dropdown
-3. Edit hours for different days
-4. Use "Copy Monday to Weekdays" button
-5. Click "Save Hours"
-6. Return to Contact Page (/) to verify changes
+4. Scroll down to see the hours editor (always visible)
+5. Modify hours for any day
+6. Use "Copy Monday to Weekdays" button for quick setup
+7. Click "Save Hours" in the hours section
+8. Click "Save Store Information" at the bottom to save other fields
+9. Return to Contact Page (/) to see all changes live
 
 ## Common URLs
 
 - **Home/Contact**: `http://localhost:5173/`
-- **Store Settings**: `http://localhost:5173/admin/store-settings`
-- **Store Hours**: `http://localhost:5173/admin/store-hours`
+- **Admin (All Settings)**: `http://localhost:5173/admin/store-settings`
 
 ## Production Build
 

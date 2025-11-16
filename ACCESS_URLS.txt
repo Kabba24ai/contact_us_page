@@ -11,7 +11,7 @@
 
 ════════════════════════════════════════════════════════════════
 
-🌐 AVAILABLE PAGES
+🌐 AVAILABLE PAGES (JUST 2!)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ┌──────────────────────────────────────────────────────────────┐
@@ -28,71 +28,49 @@
 └──────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐
-│ 2. STORE SETTINGS ADMIN (Recommended Admin Page)            │
+│ 2. ADMIN PAGE - ALL IN ONE! ⭐                               │
 ├──────────────────────────────────────────────────────────────┤
 │ URL: http://localhost:5173/admin/store-settings              │
 │                                                              │
-│ Features:                                                    │
-│ • Edit ALL store information                                 │
-│ • Store name, phone, email, details                          │
+│ EVERYTHING YOU NEED IN ONE PAGE:                             │
+│ • Edit store name, phone, email, details                     │
 │ • Full address with GPS coordinates                          │
 │ • Primary/Alternate designation                              │
 │ • Active/Inactive status toggle                              │
-│ • INTEGRATED HOURS EDITOR (toggle button)                    │
+│ • HOURS EDITOR (always visible - no toggle needed!)          │
 │                                                              │
-│ This is the MAIN admin page - use this one!                  │
-└──────────────────────────────────────────────────────────────┘
-
-┌──────────────────────────────────────────────────────────────┐
-│ 3. STORE HOURS ADMIN (Hours-Only Interface)                 │
-├──────────────────────────────────────────────────────────────┤
-│ URL: http://localhost:5173/admin/store-hours                 │
-│                                                              │
-│ Features:                                                    │
-│ • Dedicated hours management                                 │
-│ • Quick copy functions                                       │
-│ • Live preview                                               │
-│                                                              │
-│ Use this if you only need to update hours quickly           │
+│ This is your ONE admin page for EVERYTHING!                  │
+│ No more jumping between pages!                               │
 └──────────────────────────────────────────────────────────────┘
 
 ════════════════════════════════════════════════════════════════
 
-🔝 NAVIGATION BAR
+🔝 NAVIGATION BAR (SIMPLE!)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Every page has a navigation bar at the top with these links:
+Every page has a navigation bar at the top with just 2 links:
 
 🏠 Contact Page     → Public contact page
-🏢 Store Settings   → Complete admin interface (MAIN ADMIN)
-🕐 Store Hours      → Quick hours editor
+🏢 Admin            → Complete admin interface (ALL-IN-ONE)
 
-Click any link to navigate between pages.
+That's it! Simple and clean.
 
 ════════════════════════════════════════════════════════════════
 
-⚡ QUICK ACCESS WORKFLOW
+⚡ QUICK WORKFLOW (SIMPLIFIED!)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-TO UPDATE STORE INFO:
+TO UPDATE ANYTHING (INFO OR HOURS):
 1. Go to: http://localhost:5173/admin/store-settings
-2. Select store from dropdown
-3. Edit any fields
-4. Click "Save Store Settings"
-
-TO UPDATE HOURS:
-Option A (From Store Settings):
-1. Go to: http://localhost:5173/admin/store-settings
-2. Select store
-3. Click "Edit Hours of Operation" button
-4. Modify hours
-5. Click "Save Hours"
-
-Option B (Dedicated Hours Page):
-1. Go to: http://localhost:5173/admin/store-hours
-2. Select store
-3. Modify hours
-4. Click "Save Hours"
+2. Select store from dropdown at top
+3. Edit ANY fields you want:
+   - Basic info (name, phone, email)
+   - Address details
+   - Store settings
+   - Hours of operation (scroll down - it's right there!)
+4. Click "Save Hours" to save hours changes
+5. Click "Save Store Information" to save everything else
+6. Done!
 
 TO VIEW PUBLIC PAGE:
 1. Go to: http://localhost:5173/
@@ -103,18 +81,21 @@ TO VIEW PUBLIC PAGE:
 💡 PRO TIPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-• Bookmark admin URLs for quick access
-• Use Store Settings page for everything (it has hours built-in)
+• Everything is on ONE admin page - no more clicking around!
+• Hours editor is ALWAYS visible - just scroll down
 • Phone numbers auto-format as you type
+• Use "Copy Monday to Weekdays" for quick hour setup
 • Changes save to database immediately
 • Refresh Contact Page to see your changes
 
 ════════════════════════════════════════════════════════════════
 
-📝 REMEMBER
+📝 REMEMBER (SO SIMPLE NOW!)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Main Admin Page: http://localhost:5173/admin/store-settings
-(This is the one you'll use most - it does everything!)
+Admin Page: http://localhost:5173/admin/store-settings
+
+That's the ONLY admin page you need!
+Everything (info + hours) is there in one place!
 
 ════════════════════════════════════════════════════════════════
