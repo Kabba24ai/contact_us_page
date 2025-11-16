@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Hours Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm" x-data="hoursEditor()">
+            <div class="px-6 py-6">
+                <h3 class="mb-4 text-base font-semibold text-gray-900">Hours of Operation</h3>
+                <hr class="mb-6 border-gray-300">
+
+                <div class="space-y-4">
+                    <template x-for="day in days" :key="day.id">
+                        <div class="grid grid-cols-12 gap-4 items-center">
+                            <!-- Day Name -->
+                            <div class="col-span-3">
+                                <label class="text-sm font-medium text-gray-700" x-text="day.label"></label>
+                            </div>
+
+                            <!-- Closed Toggle -->
+                            <div class="col-span-2">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        x-model="hours[day.id].closed"
+                                        @change="handleClosedToggle(day.id)"
+                                        class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <span class="text-sm text-gray-600">Closed</span>
+                                </label>
+                            </div>
+
+                            <!-- Open Time -->
+                            <div class="col-span-3">
+                                <input
+                                    type="time"
+                                    x-model="hours[day.id].open"
+                                    :disabled="hours[day.id].closed"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+                                    :class="hours[day.id].closed ? 'border-gray-200' : 'border-gray-300'">
+                            </div>
+
+                            <!-- Separator -->
+                            <div class="col-span-1 text-center">
+                                <span class="text-gray-500">to</span>
+                            </div>
+
+                            <!-- Close Time -->
+                            <div class="col-span-3">
+                                <input
+                                    type="time"
+                                    x-model="hours[day.id].close"
+                                    :disabled="hours[day.id].closed"
+                                    class="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:ring-2 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+                                    :class="hours[day.id].closed ? 'border-gray-200' : 'border-gray-300'">
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex gap-3">
+                        <button
+                            @click="applyToWeekdays()"
+                            type="button"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                            Copy Monday to Weekdays
+                        </button>
+                        <button
+                            @click="applyToAll()"
+                            type="button"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                            Copy Monday to All Days
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Save Buttons -->
+                <div class="flex justify-center mt-8 gap-4">
+                    <button
+                        @click="saveHours()"
+                        type="button"
+                        class="inline-flex items-center px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition">
+                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/>
+                        </svg>
+                        Save Hours
+                    </button>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3">Preview (as displayed on website):</h4>
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+                        <template x-for="day in days" :key="day.id">
+                            <div class="flex justify-between text-sm">
+                                <span class="font-medium text-gray-700" x-text="day.label"></span>
+                                <span class="text-gray-600" x-text="formatHoursDisplay(day.id)"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function hoursEditor() {
+            return {
+                storeLocation: 'waverly',
+                days: [
+                    { id: 'monday', label: 'Monday' },
+                    { id: 'tuesday', label: 'Tuesday' },
+                    { id: 'wednesday', label: 'Wednesday' },
+                    { id: 'thursday', label: 'Thursday' },
+                    { id: 'friday', label: 'Friday' },
+                    { id: 'saturday', label: 'Saturday' },
+                    { id: 'sunday', label: 'Sunday' }
+                ],
+                hours: {
+                    monday: { open: '07:00', close: '17:00', closed: false },
+                    tuesday: { open: '07:00', close: '17:00', closed: false },
+                    wednesday: { open: '07:00', close: '17:00', closed: false },
+                    thursday: { open: '07:00', close: '17:00', closed: false },
+                    friday: { open: '07:00', close: '17:00', closed: false },
+                    saturday: { open: '07:00', close: '12:00', closed: false },
+                    sunday: { open: '09:00', close: '17:00', closed: true }
+                },
+
+                init() {
+                    this.loadHours();
+                },
+
+                async loadHours() {
+                    console.log('Loading hours for location:', this.storeLocation);
+                },
+
+                handleClosedToggle(dayId) {
+                    if (this.hours[dayId].closed) {
+                        this.hours[dayId].open = '';
+                        this.hours[dayId].close = '';
+                    }
+                },
+
+                applyToWeekdays() {
+                    const mondayHours = { ...this.hours.monday };
+                    ['tuesday', 'wednesday', 'thursday', 'friday'].forEach(day => {
+                        this.hours[day] = { ...mondayHours };
+                    });
+                },
+
+                applyToAll() {
+                    const mondayHours = { ...this.hours.monday };
+                    this.days.forEach(day => {
+                        if (day.id !== 'monday') {
+                            this.hours[day.id] = { ...mondayHours };
+                        }
+                    });
+                },
+
+                formatHoursDisplay(dayId) {
+                    const dayHours = this.hours[dayId];
+                    if (dayHours.closed) {
+                        return 'Closed';
+                    }
+                    if (!dayHours.open || !dayHours.close) {
+                        return 'Not Set';
+                    }
+                    return `${this.formatTime(dayHours.open)} - ${this.formatTime(dayHours.close)}`;
+                },
+
+                formatTime(time24) {
+                    if (!time24) return '';
+                    const [hours, minutes] = time24.split(':');
+                    const hour = parseInt(hours);
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+                    return `${hour12}:${minutes} ${ampm}`;
+                },
+
+                async saveHours() {
+                    console.log('Saving hours:', this.hours);
+                    alert('Hours saved successfully! (This would integrate with your backend)');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
